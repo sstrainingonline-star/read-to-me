@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101318">
+  <meta name="description" content="A simple reading assistant that reads printed words aloud.">
+  <title>Read To Me — Reading Assistant</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">R</div>
+      <div class="brand-copy">
+        <p class="eyebrow">READING ASSISTANT</p>
+        <h1>Read <span>To Me</span></h1>
+      </div>
+      <button class="icon-button help-button" id="helpButton" aria-label="How to use Read To Me">?</button>
+    </header>
+
+    <section class="intro">
+      <div>
+        <p class="eyebrow">YOUR WORDS, SPOKEN CLEARLY</p>
+        <h2>Point. Read. <span>Understand.</span></h2>
+        <p class="intro-text">A simple reading companion. It reads the words it can see — it never answers the questions.</p>
+      </div>
+      <div class="live-indicator" id="liveIndicator"><i></i><span>READY</span></div>
+    </section>
+
+    <section class="reader-card" aria-label="Camera reader">
+      <div class="camera-topline">
+        <span><span class="camera-dot"></span> CAMERA VIEW</span>
+        <span id="cameraStatus">Camera not started</span>
+      </div>
+      <div class="camera-frame" id="cameraFrame">
+        <video id="camera" autoplay muted playsinline></video>
+        <canvas id="captureCanvas" hidden></canvas>
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <div class="scan-icon">⌗</div>
+          <strong>Your camera view will appear here</strong>
+          <span>Hold your phone over a question or page of text.</span>
+        </div>
+        <div class="scan-line" id="scanLine"></div>
+        <div class="camera-corner corner-tl"></div><div class="camera-corner corner-tr"></div>
+        <div class="camera-corner corner-bl"></div><div class="camera-corner corner-br"></div>
+      </div>
+
+      <div class="camera-actions">
+        <button class="button button-primary" id="startCamera">
+          <span class="button-icon">◉</span><span>Start live reader</span>
+        </button>
+        <button class="button button-secondary" id="readFrame" disabled>
+          <span class="button-icon">◎</span><span>Read this page</span>
+        </button>
+      </div>
+      <div class="secondary-actions">
+        <button class="text-button" id="stopCamera" disabled>■ Stop camera</button>
+        <label class="text-button upload-label" for="imageUpload">↑ Upload a photo</label>
+        <input id="imageUpload" type="file" accept="image/*" capture="environment" hidden>
+      </div>
+      <p class="privacy-note"><span>●</span> Camera images are processed on your device. They are not uploaded to an account.</p>
+    </section>
+
+    <section class="reading-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">LIVE TRANSCRIPTION</p>
+          <h3>Words on the page</h3>
+        </div>
+        <span class="status-pill" id="ocrStatus">WAITING</span>
+      </div>
+      <div class="recognition-progress" aria-hidden="true"><div id="progressBar"></div></div>
+      <div class="transcript" id="transcript" aria-live="polite">
+        <span class="placeholder-text">The words the camera recognises will appear here.</span>
+      </div>
+      <div class="reading-controls">
+        <button class="button button-read" id="readText" disabled>▶ <span>Read aloud</span></button>
+        <button class="button button-control" id="pauseRead" disabled>Ⅱ</button>
+        <button class="button button-control" id="replayRead" disabled>↻</button>
+        <button class="button button-control stop-speech" id="stopRead" disabled>■</button>
+      </div>
+      <div class="now-speaking" id="speakingStatus"><span class="sound-bars"><i></i><i></i><i></i><i></i></span><span>Ready when you are</span></div>
+    </section>
+
+    <section class="settings-card">
+      <div class="section-heading">
+        <div><p class="eyebrow">MAKE IT COMFORTABLE</p><h3>Reading settings</h3></div>
+        <span class="settings-symbol">☷</span>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label"><label for="speed">Reading speed</label><output id="speedValue">0.9×</output></div>
+        <input id="speed" type="range" min="0.6" max="1.5" value="0.9" step="0.1">
+        <div class="range-ends"><span>Slower</span><span>Faster</span></div>
+      </div>
+      <div class="setting-row">
+        <label for="voice">Reading voice</label>
+        <select id="voice"><option value="">Device default voice</option></select>
+        <p class="hint">Available voices depend on the phone or browser.</p>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label"><label for="textSize">Text size</label><output id="textSizeValue">Large</output></div>
+        <input id="textSize" type="range" min="18" max="32" value="24" step="2">
+        <div class="range-ends"><span>Smaller</span><span>Larger</span></div>
+      </div>
+      <div class="setting-row toggle-row">
+        <div><strong>Auto-read new text</strong><p class="hint">In live mode, read text after it stays steady.</p></div>
+        <label class="switch"><input id="autoRead" type="checkbox" checked><span></span></label>
+      </div>
+    </section>
+
+    <footer>
+      <p>READ TO ME <span>•</span> A learning support tool</p>
+      <p>For assessment use, follow your centre's access-arrangement and exam rules.</p>
+    </footer>
+  </main>
+
+  <dialog id="helpDialog">
+    <div class="dialog-head"><div><p class="eyebrow">QUICK GUIDE</p><h3>How to use Read To Me</h3></div><button class="icon-button" id="closeHelp" aria-label="Close">×</button></div>
+    <ol>
+      <li>Tap <b>Start live reader</b> and allow camera access.</li>
+      <li>Hold the phone steady over the printed question.</li>
+      <li>When the words are recognised, tap <b>Read aloud</b> — or turn on Auto-read.</li>
+      <li>Move to the next question. The reader will detect new, steady text.</li>
+    </ol>
+    <p class="dialog-note">You can also upload or take a photo instead of using live camera mode. Good lighting, a flat page and steady focus improve recognition.</p>
+    <button class="button button-primary full-button" id="gotIt">Got it</button>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
