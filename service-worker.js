@@ -1,4 +1,4 @@
-const CACHE = "read-to-me-v1";
+const CACHE = "read-to-me-v2";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_FILES)));

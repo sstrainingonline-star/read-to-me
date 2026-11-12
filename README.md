@@ -30,5 +30,11 @@ A free, mobile-first reading support website/PWA for students. It recognises pri
 - Live camera scanning checks the image periodically.
 - Auto-read waits for text to be stable across two scans and then reads it.
 - Read this page captures and reads the current camera frame.
-- Upload a photo supports an existing image or taking a photo from a compatible phone.
+- Choose photo / take photo opens the device image picker and processes the selected image. It automatically reads recognised text aloud.
+- Clear stops speech and clears the recognised text. In live mode it ignores the same page until new text is detected.
+- OCR preprocessing enlarges images, improves contrast, preserves line layout and repairs common OCR letter-spacing errors.
 - Speed, voice and text size can be adjusted.
+
+
+## Updating an existing GitHub Pages version
+Replace the old files with the new files from this ZIP. The service worker cache version has been changed so devices can receive the update. If an old version remains visible, close the installed app/browser tab completely and reopen the GitHub Pages site.

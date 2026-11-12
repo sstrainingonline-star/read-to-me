@@ -59,8 +59,8 @@
       </div>
       <div class="secondary-actions">
         <button class="text-button" id="stopCamera" disabled>■ Stop camera</button>
-        <label class="text-button upload-label" for="imageUpload">↑ Upload a photo</label>
-        <input id="imageUpload" type="file" accept="image/*" capture="environment" hidden>
+        <label class="text-button upload-label" for="imageUpload">↑ Choose photo / take photo</label>
+        <input id="imageUpload" type="file" accept="image/*" hidden>
       </div>
       <p class="privacy-note"><span>●</span> Camera images are processed on your device. They are not uploaded to an account.</p>
     </section>
@@ -81,7 +81,8 @@
         <button class="button button-read" id="readText" disabled>▶ <span>Read aloud</span></button>
         <button class="button button-control" id="pauseRead" disabled>Ⅱ</button>
         <button class="button button-control" id="replayRead" disabled>↻</button>
-        <button class="button button-control stop-speech" id="stopRead" disabled>■</button>
+        <button class="button button-control stop-speech" id="stopRead" disabled aria-label="Stop reading">■</button>
+        <button class="button button-clear" id="clearText" disabled>✕ <span>Clear</span></button>
       </div>
       <div class="now-speaking" id="speakingStatus"><span class="sound-bars"><i></i><i></i><i></i><i></i></span><span>Ready when you are</span></div>
     </section>
@@ -123,7 +124,7 @@
     <ol>
       <li>Tap <b>Start live reader</b> and allow camera access.</li>
       <li>Hold the phone steady over the printed question.</li>
-      <li>When the words are recognised, tap <b>Read aloud</b> — or turn on Auto-read.</li>
+      <li>When the words are recognised, they will be read aloud automatically. You can also tap Read aloud.</li>
       <li>Move to the next question. The reader will detect new, steady text.</li>
     </ol>
     <p class="dialog-note">You can also upload or take a photo instead of using live camera mode. Good lighting, a flat page and steady focus improve recognition.</p>
