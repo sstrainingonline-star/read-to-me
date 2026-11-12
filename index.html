@@ -1,136 +1,107 @@
 <!doctype html>
-<html lang="en-GB">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101318">
-  <meta name="description" content="A simple reading assistant that reads printed words aloud.">
-  <title>Read To Me — Reading Assistant</title>
+  <meta name="theme-color" content="#101114">
+  <meta name="description" content="Read To Me - a reading support tool for learners.">
+  <title>Read To Me | Hair Force 1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
+  <script defer src="./config.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body>
-  <main class="app-shell">
-    <header class="topbar">
-      <div class="brand-mark" aria-hidden="true">R</div>
-      <div class="brand-copy">
-        <p class="eyebrow">READING ASSISTANT</p>
-        <h1>Read <span>To Me</span></h1>
-      </div>
-      <button class="icon-button help-button" id="helpButton" aria-label="How to use Read To Me">?</button>
-    </header>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">RTM</span><div><strong>READ TO ME</strong><small>Hair Force 1 Learning Support</small></div></div>
+    <button id="logoutBtn" class="quiet hidden" type="button">Sign out</button>
+  </header>
 
-    <section class="intro">
-      <div>
-        <p class="eyebrow">YOUR WORDS, SPOKEN CLEARLY</p>
-        <h2>Point. Read. <span>Understand.</span></h2>
-        <p class="intro-text">A simple reading companion. It reads the words it can see — it never answers the questions.</p>
-      </div>
-      <div class="live-indicator" id="liveIndicator"><i></i><span>READY</span></div>
+  <main>
+    <section id="loginView" class="panel login-panel">
+      <p class="eyebrow">STUDENT ACCESS</p>
+      <h1>Let's make reading easier.</h1>
+      <p class="muted">Sign in using the access details provided by your tutor.</p>
+      <form id="loginForm">
+        <label for="studentId">Student ID / username</label>
+        <input id="studentId" autocomplete="username" required placeholder="Enter your student ID">
+        <label for="accessCode">Access code</label>
+        <input id="accessCode" type="password" autocomplete="current-password" required placeholder="Enter your code">
+        <button class="primary full" type="submit">Continue</button>
+      </form>
+      <button id="assessmentToggle" class="text-button" type="button">Use a temporary assessment code</button>
+      <p id="loginMessage" class="message" role="status"></p>
+      <p class="tiny muted">If you cannot sign in, ask your tutor or administrator for help.</p>
     </section>
 
-    <section class="reader-card" aria-label="Camera reader">
-      <div class="camera-topline">
-        <span><span class="camera-dot"></span> CAMERA VIEW</span>
-        <span id="cameraStatus">Camera not started</span>
+    <section id="readerView" class="hidden">
+      <div class="welcome-row"><div><p class="eyebrow">YOUR READING SPACE</p><h1>Ready when you are.</h1></div><span id="sessionBadge" class="status-pill">Session active</span></div>
+      <div class="reader-grid">
+        <section class="panel">
+          <div class="section-heading"><div><p class="eyebrow">01 / GET YOUR TEXT</p><h2>Scan or upload</h2></div><span class="number">01</span></div>
+          <div class="camera-box">
+            <video id="camera" playsinline autoplay muted></video>
+            <div id="cameraPlaceholder" class="camera-placeholder"><span class="camera-symbol">▣</span><strong>Camera preview</strong><small>Position the question clearly in the frame.</small></div>
+          </div>
+          <div class="button-row">
+            <button id="startCamera" class="primary" type="button">Open camera</button>
+            <button id="capturePhoto" class="secondary" type="button" disabled>Capture</button>
+          </div>
+          <div class="button-row">
+            <label class="upload-button secondary" for="imageUpload">Upload a photo</label>
+            <input id="imageUpload" type="file" accept="image/*" capture="environment" class="visually-hidden">
+            <button id="stopCamera" class="quiet" type="button" disabled>Close camera</button>
+          </div>
+          <p id="ocrStatus" class="message" role="status">Your image is processed in this browser. It is not sent to the academy.</p>
+          <canvas id="captureCanvas" class="hidden"></canvas>
+        </section>
+
+        <section class="panel text-panel">
+          <div class="section-heading"><div><p class="eyebrow">02 / CHECK THE WORDS</p><h2>Reading text</h2></div><span class="number">02</span></div>
+          <textarea id="readingText" rows="9" placeholder="Scanned words will appear here. You can correct OCR mistakes before listening."></textarea>
+          <div class="button-row">
+            <button id="readBtn" class="primary" type="button">▶ Read aloud</button>
+            <button id="pauseBtn" class="secondary" type="button">Pause</button>
+            <button id="resumeBtn" class="secondary" type="button">Resume</button>
+          </div>
+          <div class="button-row">
+            <button id="replayBtn" class="secondary" type="button">Replay</button>
+            <button id="stopBtn" class="quiet" type="button">Stop</button>
+            <button id="clearBtn" class="quiet" type="button">Clear</button>
+          </div>
+          <p id="speechStatus" class="message" role="status">Choose a voice, then press Read aloud.</p>
+        </section>
       </div>
-      <div class="camera-frame" id="cameraFrame">
-        <video id="camera" autoplay muted playsinline></video>
-        <canvas id="captureCanvas" hidden></canvas>
-        <div class="camera-placeholder" id="cameraPlaceholder">
-          <div class="scan-icon">⌗</div>
-          <strong>Your camera view will appear here</strong>
-          <span>Hold your phone over a question or page of text.</span>
+
+      <section class="panel settings-panel">
+        <div class="section-heading"><div><p class="eyebrow">03 / MAKE IT COMFORTABLE</p><h2>Voice & reading settings</h2></div><span class="number">03</span></div>
+        <div class="settings-grid">
+          <div><label for="voiceSelect">Voice available on this phone</label><select id="voiceSelect"><option>Loading available voices…</option></select><button id="previewVoice" class="text-button" type="button">Preview selected voice</button></div>
+          <div><label for="rateRange">Reading speed <strong id="rateValue">1.0×</strong></label><input id="rateRange" type="range" min="0.7" max="1.2" step="0.05" value="1"><small class="muted">A slower pace may be easier to follow.</small></div>
         </div>
-        <div class="scan-line" id="scanLine"></div>
-        <div class="camera-corner corner-tl"></div><div class="camera-corner corner-tr"></div>
-        <div class="camera-corner corner-bl"></div><div class="camera-corner corner-br"></div>
-      </div>
-
-      <div class="camera-actions">
-        <button class="button button-primary" id="startCamera">
-          <span class="button-icon">◉</span><span>Start live reader</span>
-        </button>
-        <button class="button button-secondary" id="readFrame" disabled>
-          <span class="button-icon">◎</span><span>Read this page</span>
-        </button>
-      </div>
-      <div class="secondary-actions">
-        <button class="text-button" id="stopCamera" disabled>■ Stop camera</button>
-        <label class="text-button upload-label" for="imageUpload">↑ Choose photo / take photo</label>
-        <input id="imageUpload" type="file" accept="image/*" hidden>
-      </div>
-      <p class="privacy-note"><span>●</span> Camera images are processed on your device. They are not uploaded to an account.</p>
+        <p class="tiny muted">Voice choices come from your phone or browser. To add enhanced voices, use your device's Accessibility or Spoken Content settings. Available voices vary by device and browser.</p>
+      </section>
+      <section class="privacy-note"><strong>Assessment reminder</strong><p>This tool reads the text you provide. It does not answer, explain, summarise or interpret questions. Use it in an assessment only when your centre and awarding organisation have approved this access arrangement.</p></section>
     </section>
 
-    <section class="reading-card">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">LIVE TRANSCRIPTION</p>
-          <h3>Words on the page</h3>
+    <section id="adminView" class="hidden">
+      <div class="welcome-row"><div><p class="eyebrow">CONTROL CENTRE</p><h1>Administrator</h1></div><span class="status-pill">Restricted access</span></div>
+      <div class="panel">
+        <h2>Admin dashboard connection</h2>
+        <p class="muted">Student creation, permanent code resets, temporary assessment codes, revocation and session monitoring are managed by the secure Appwrite Function included in this project.</p>
+        <p id="adminMessage" class="message"></p>
+        <div class="admin-actions">
+          <button id="loadAdminData" class="primary" type="button">Load student and session records</button>
+          <button id="createStudent" class="secondary" type="button">Add student</button>
+          <button id="issueTemp" class="secondary" type="button">Issue temporary assessment code</button>
         </div>
-        <span class="status-pill" id="ocrStatus">WAITING</span>
-      </div>
-      <div class="recognition-progress" aria-hidden="true"><div id="progressBar"></div></div>
-      <div class="transcript" id="transcript" aria-live="polite">
-        <span class="placeholder-text">The words the camera recognises will appear here.</span>
-      </div>
-      <div class="reading-controls">
-        <button class="button button-read" id="readText" disabled>▶ <span>Read aloud</span></button>
-        <button class="button button-control" id="pauseRead" disabled>Ⅱ</button>
-        <button class="button button-control" id="replayRead" disabled>↻</button>
-        <button class="button button-control stop-speech" id="stopRead" disabled aria-label="Stop reading">■</button>
-        <button class="button button-clear" id="clearText" disabled>✕ <span>Clear</span></button>
-      </div>
-      <div class="now-speaking" id="speakingStatus"><span class="sound-bars"><i></i><i></i><i></i><i></i></span><span>Ready when you are</span></div>
-    </section>
-
-    <section class="settings-card">
-      <div class="section-heading">
-        <div><p class="eyebrow">MAKE IT COMFORTABLE</p><h3>Reading settings</h3></div>
-        <span class="settings-symbol">☷</span>
-      </div>
-      <div class="setting-row">
-        <div class="setting-label"><label for="speed">Reading speed</label><output id="speedValue">0.9×</output></div>
-        <input id="speed" type="range" min="0.6" max="1.5" value="0.9" step="0.1">
-        <div class="range-ends"><span>Slower</span><span>Faster</span></div>
-      </div>
-      <div class="setting-row">
-        <label for="voice">Reading voice</label>
-        <select id="voice"><option value="">Device default voice</option></select>
-        <p class="hint">Available voices depend on the phone or browser.</p>
-      </div>
-      <div class="setting-row">
-        <div class="setting-label"><label for="textSize">Text size</label><output id="textSizeValue">Large</output></div>
-        <input id="textSize" type="range" min="18" max="32" value="24" step="2">
-        <div class="range-ends"><span>Smaller</span><span>Larger</span></div>
-      </div>
-      <div class="setting-row toggle-row">
-        <div><strong>Auto-read new text</strong><p class="hint">In live mode, read text after it stays steady.</p></div>
-        <label class="switch"><input id="autoRead" type="checkbox" checked><span></span></label>
+        <div id="adminResults" class="admin-results"><p class="muted">No records loaded.</p></div>
       </div>
     </section>
-
-    <footer>
-      <p>READ TO ME <span>•</span> A learning support tool</p>
-      <p>For assessment use, follow your centre's access-arrangement and exam rules.</p>
-    </footer>
   </main>
-
-  <dialog id="helpDialog">
-    <div class="dialog-head"><div><p class="eyebrow">QUICK GUIDE</p><h3>How to use Read To Me</h3></div><button class="icon-button" id="closeHelp" aria-label="Close">×</button></div>
-    <ol>
-      <li>Tap <b>Start live reader</b> and allow camera access.</li>
-      <li>Hold the phone steady over the printed question.</li>
-      <li>When the words are recognised, they will be read aloud automatically. You can also tap Read aloud.</li>
-      <li>Move to the next question. The reader will detect new, steady text.</li>
-    </ol>
-    <p class="dialog-note">You can also upload or take a photo instead of using live camera mode. Good lighting, a flat page and steady focus improve recognition.</p>
-    <button class="button button-primary full-button" id="gotIt">Got it</button>
-  </dialog>
-  <div class="toast" id="toast" role="status"></div>
-  <script src="./app.js"></script>
+  <footer><span>READ TO ME</span><span>Designed for learning support · Hair Force 1</span></footer>
 </body>
 </html>
