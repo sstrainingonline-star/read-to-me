@@ -1,17 +1,1 @@
-{
-  "name": "Read To Me - Hair Force 1",
-  "short_name": "Read To Me",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#101114",
-  "theme_color": "#101114",
-  "description": "Reading support for learners.",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}
+{"name":"Learning Support — Read To Me","short_name":"Learning Support","start_url":"./","display":"standalone","background_color":"#fff7e9","theme_color":"#203955"}
