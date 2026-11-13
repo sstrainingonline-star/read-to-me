@@ -1,32 +1,33 @@
-# Learning Support — Read To Me V4.3 (mobile-friendly demonstration)
+# Read To Me — Clean V4.4 (browser demo)
 
-This is a complete replacement package for GitHub Pages. It includes the current student reader, administrator demonstration, and mobile layout fixes. **No Appwrite or other account is required to try the demonstration.**
+This is a cleaned, deployable static website for GitHub Pages. It is **not** a production student-account or exam-security system.
 
-## Login codes (unchanged)
-- Student reader: `DEMO2026`
-- Administrator: `ADMINDEMO2026`
-
-These are PUBLIC demonstration codes, not secure passwords. Do not enter real learner information or use this demonstration to control formal assessments.
-
-## Upload the complete package
+## Install
 1. Extract the ZIP.
-2. Open your existing GitHub repository and upload **all files inside the folder** to the repository root (the same level as `index.html`). Replace the old files.
-3. Delete old `config.js`, `service-worker.js` and any obsolete duplicate versions of the application files. The new package intentionally has no service worker.
-4. Under Settings → Pages, confirm the repository is publishing `main` / `(root)`.
-5. Open the **published GitHub Pages HTTPS link** on an iPhone or Android phone, not the GitHub repository's file preview. If a previously installed app opens an old screen, remove that home-screen shortcut, clear the site's Safari/Chrome website data, and reopen the HTTPS URL. Refresh once after deployment.
-6. Sign in with the same demo codes above.
+2. Upload **the files inside `read-to-me-main`** to the root of your GitHub Pages repository, replacing older versions.
+3. In GitHub Settings > Pages, publish from `main` / `(root)`.
+4. Visit the published HTTPS website, not the repository file preview. Reload after deployment.
+5. Internet is needed for the OCR engine. Allow camera permission when prompted.
 
-## Mobile improvements
-- Responsive mobile-first layout, touch-sized buttons, iPhone safe-area support, no sideways overflow.
-- Photo upload through the photo library, plus a separate "Take a photo with phone" option.
-- Live camera preview and Capture & read, with browser camera permission on HTTPS.
-- Automatic OCR and read-aloud attempt after scan; on some iPhones Safari blocks speech until a user taps **Read aloud**.
-- Phone/browser voice selection, voice test, speed, text size, clear, pause, repeat and stop.
-- No Appwrite dependency, and removes registrations for legacy service workers that can keep serving old cached pages.
+## Demo access
+- Reader: `DEMO2026`
+- Admin preview: `ADMINDEMO2026`
 
-## Important limits
-- Learners and one-time codes created in the administrator demo are saved **only in that same browser**. A code created on your iPhone cannot work on another student's phone without a shared server. The fixed demo student code works on any phone because it is in public JavaScript, but it is reusable and not secure.
-- A GitHub Pages website cannot securely authenticate students or enforce one-time codes across different devices. The admin code is also visible to anyone inspecting the code. Never use these demo codes as exam security.
-- The OCR engine downloads Tesseract.js and English language data over the internet. Recognition happens in the browser; photos are not intentionally uploaded to an academy server.
-- iPhone Safari and Android browsers may offer different system voices. This website cannot download/install extra phone voices.
-- The website cannot lock a personal phone, prevent app switching or reliably detect cheating. Obtain approval for any formal assessment use.
+These codes are visible in public source. Do not use them to protect learner data or assessments. Learner codes generated in the admin preview are stored only in that browser, **not shared across devices**.
+
+## What was cleaned
+- Removed the disconnected, unfinished Appwrite Function starter; it was not used by the website and included unfinished authentication work.
+- Updated asset cache versions to 4.4.
+- Guarded local voice preference storage where browser storage is blocked.
+- Prevented stale OCR results from being written after logout.
+- Stop the live camera after taking a picture.
+- Guarded against a late camera permission response after logout.
+
+## Reader features
+Camera preview and capture, upload photo, phone camera file picker, English OCR, read aloud, pause/resume, stop/repeat, browser voice selection, voice test, speed and font size. OCR runs in the browser via Tesseract.js downloaded from a CDN. Phone browsers may require pressing **Read aloud** to start speech.
+
+## Important limitations
+This is a functioning **demonstration**, not a secure multi-device application. To issue genuinely one-time codes across devices, add a secure backend with atomic code redemption, authenticated admin accounts, session verification, audit logging and appropriate privacy controls. No phone website can reliably prevent app switching or guarantee assessment integrity. Obtain awarding-body approval before formal exam use.
+
+## Verification
+JavaScript syntax and package structure can be checked automatically; camera, OCR accuracy, speech and GitHub Pages deployment must also be tested on the target devices.
